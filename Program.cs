@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Talabat.Repository.Data;
+using Talabat.Repository.Data.DataSeeding;
 
 namespace Talabat.API
 {
@@ -27,16 +28,16 @@ namespace Talabat.API
 
 
             var app = builder.Build();
-
-            var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger<Program>();
+            var scope = app.Services.CreateScope();
+            var services = scope.ServiceProvider;
+            var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger<Program>();
 
             try
             {
 
-
-
-                var context = app.Services.GetRequiredService<StoreContext>();
+                var context = services.GetRequiredService<StoreContext>();
                 context.Database.Migrate();
+                StoreSeed.SeedData(context);
             }
             catch(Exception ex)
             {
