@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Talabat.CoreEntities.Repositotry;
+using Talabat.Repository;
 using Talabat.Repository.Data;
 using Talabat.Repository.Data.DataSeeding;
 
@@ -25,6 +27,7 @@ namespace Talabat.API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 
             var app = builder.Build();
@@ -39,13 +42,13 @@ namespace Talabat.API
                 context.Database.Migrate();
                 StoreSeed.SeedData(context);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                logger.LogError(ex,ex.Message);
+                logger.LogError(ex, ex.Message);
             }
 
             // Configure the HTTP request pipeline.
-            if(app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
