@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Talabat.API.Helper.MappingProfile;
 using Talabat.CoreEntities.Repositotry;
 using Talabat.Repository;
 using Talabat.Repository.Data;
@@ -28,7 +29,7 @@ namespace Talabat.API
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-
+            builder.Services.AddAutoMapper(typeof(Mapping));
 
             var app = builder.Build();
             var scope = app.Services.CreateScope();
@@ -57,7 +58,7 @@ namespace Talabat.API
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
+            app.UseStaticFiles();
 
             app.MapControllers();
 
