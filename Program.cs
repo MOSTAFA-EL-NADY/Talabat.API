@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Talabat.API.Helper.MappingProfile;
+using Talabat.API.MiddleWare;
 using Talabat.CoreEntities.Repositotry;
 using Talabat.Repository;
 using Talabat.Repository.Data;
@@ -30,6 +31,20 @@ namespace Talabat.API
 
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddAutoMapper(typeof(Mapping));
+            builder.Services.AddTransient<ExceptionMW>();
+            // this allow u to configure and customize BadRequest with ur own response
+            builder.Services.Configure<ApiBehaviorOptions>(opt =>
+            {
+                opt.InvalidModelStateResponseFactory = (actionContex) =>
+                {
+                    var errors = actionContex.ModelState.Where(a => a.Value.Errors.Count() > 0)
+                    .SelectMany(a => a.Value.Errors)
+                    .Select(a => a.ErrorMessage)
+                    .ToList();
+
+                    return new BadRequestObjectResult(errors);
+                };
+            });
 
             var app = builder.Build();
             var scope = app.Services.CreateScope();
@@ -49,6 +64,9 @@ namespace Talabat.API
             }
 
             // Configure the HTTP request pipeline.
+
+            // this mw for customize server error response 
+            app.UseMiddleware<ExceptionMW>();
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
