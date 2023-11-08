@@ -28,7 +28,7 @@ namespace Talabat.API.MiddleWare
                 context.Response.ContentType = "application/json";
 
                 var response = Host.IsDevelopment() ? new ExceptionResponse(500, ex.Message, ex.StackTrace)
-                    : new ExceptionResponse(500, null, null);
+                    : new ExceptionResponse(500, "An Exception Has Been Occurred", null);
 
                 var jsonResponse = JsonSerializer.Serialize(response);
 

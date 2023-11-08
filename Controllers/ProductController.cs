@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Talabat.API.DTOs;
@@ -14,34 +13,37 @@ namespace Talabat.API.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IGenericRepository<Product> _productRepo;
+        private readonly IGenericRepository<ProductType> _productTypeRepo;
         private readonly IMapper _mapper;
 
         public ProductController(
 
-            IGenericRepository<Product> productRepo, IMapper mapper
+            IGenericRepository<Product> productRepo,
+            IMapper mapper,
+            IGenericRepository<ProductType> productTypeRepo)
 
-            )
         {
             _productRepo = productRepo;
             _mapper = mapper;
+            _productTypeRepo = productTypeRepo;
         }
 
-        [HttpGet("GetAllProduct")]
+        [HttpGet]
         public async Task<IActionResult> GetProducts()
         {
             var allProducts = await _productRepo.GetAllAsync().Result.Include(a => a.Brand).Include(a => a.ProductType).ToListAsync();
             if (allProducts is null)
-                return NotFound(new ApiResponse(400, null));
+                return NotFound(new ApiResponse(404, "NO products were Found"));
             return Ok(allProducts);
 
         }
 
-        [HttpGet("GetProductById/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetProductById(int id)
         {
             var product = await _productRepo.GetByIdAsync(id);
             if (product is null)
-                return NotFound(new ApiResponse(400, null));
+                return NotFound(new ApiResponse(404, "the product Not found"));
             return Ok(product);
 
         }
@@ -53,8 +55,19 @@ namespace Talabat.API.Controllers
                 .Include(a => a.Brand)
                 .Include(a => a.ProductType)
                 .FirstOrDefault();
+            if (product is null)
+                return BadRequest(new ApiResponse(404, null));
             var mappedProduct = _mapper.Map<ProductDTO>(product);
             return Ok(mappedProduct);
+        }
+        [HttpGet("ProductTypes")]
+        public async Task<ActionResult<ProductType>> GetProductTypes()
+        {
+            var allTypes = await _productTypeRepo.GetAllAsync().Result.ToListAsync();
+            if (allTypes.Count == 0)
+                return NotFound(new ApiResponse(StatusCodes.Status404NotFound, "No Types Were Found"));
+
+            return Ok(allTypes);
         }
 
     }

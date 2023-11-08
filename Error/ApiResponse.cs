@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace Talabat.API.Error
+﻿namespace Talabat.API.Error
 {
     public class ApiResponse
     {
@@ -12,6 +10,11 @@ namespace Talabat.API.Error
             StatusCode = code;
             Message = msg ?? getDefultMessage(StatusCode);
         }
+        public ApiResponse(int code)
+        {
+            StatusCode = code;
+            Message = getDefultMessage(StatusCode);
+        }
 
         public string? getDefultMessage(int stutusCode)
         {
@@ -20,8 +23,8 @@ namespace Talabat.API.Error
                 400 => "Bad Request",
                 401 => "UnAuthorized",
                 404 => "page not found",
-                500 => "interna server error",
-                // defualt
+                500 => "internal server error",
+                // default
                 _ => null
 
             };
